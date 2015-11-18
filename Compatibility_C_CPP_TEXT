@@ -1,0 +1,101 @@
+# Reading : Compatibility between C and C++
+
+## Introduction
+_C_ and _C++_ are very closely related programming languages. _C++_ was developed out of _C_ and was designed to be _source and link_ compatible with C. Despite very broad level similarities there are various factors which **prevent _C++_ from being a strict superset of _C_**. The essay focusses on differences that make a conforming _C_ code to be ill-formed in _C++_ or a conforming _C_ & _C++_ code to behave differently. 
+
+The 1999 C standard a.k.a **C99** agreed on the principle that the development of the languages will happen independently and only the largest common subset will be maintained. Thus, C99 flushed in a lot of changes in _C_ which are either not included in _C++_ or cause conflict.  The list includes features like:
+
+1. Variadic Macros
+2. Compound Literals
+3. Designated initializers
+4. Variable length Arrays
+5. Native Complex Number types
+6. Long long int datatype^
+7. Restrict Qualifier^
+
+###### ^ These are not included in the C++ standard but some compliers like GNU provide access as an extension.
+
+
+----------
+
+## Constructs Valid in C but not in C++
+
+#### 1. Explicit void* assignment
+
+ - C supports a void* pointer to be assigned to a pointer of any data type without any cast. C++ on the other hand does not.
+
+###### C code
+
+    int * num = malloc (sizeof(int) * 5);
+    /*Implicit conversion of void * to int* */
+
+###### C++ code
+
+    void * ptr;
+    	int * num = (int *) ptr;
+    	     
+    	     or
+    	     
+    	int * num1 = (int *) malloc(sizeof(int) * 5);
+
+ - Various inclusions in C++ render C identifiers as invalid.
+	
+	
+
+    struct template
+        {
+    	    int new;
+    	    struct template * class;
+        }
+
+This is a valid C code but in C++ the compilation will give an error since the identifiers template, class and new are actually keywords.
+
+- C++ does not permit statements like goto or switch to cross an initialization. Example C99 code rejected by C++ compiler is as follows:
+ 
+
+       void function(void)
+        	{
+        		goto;
+        		int yo = 0;
+        		numbers :
+        		;
+        	}
+
+- The comma operator can result in a "[L Value](https://www.wikiwand.com/en/L-value)" in C++ but not in C.
+
+- C++ allows multiple typedefs as opposed to C.
+- Multiple types of enums are possible in C++ as opposed to int enums in C.
+- 2 underscores are not allowed in any identifier in C++. C does not support 2 underscores in the beginning but allows at any other location.
+- C++ has changed some of the standard C library functions to return const values.
+- C++ does not allow struct, union or enum declarations in function prototypes.
+- In C++ including no arguments in a function definition means the function takes no arguments. The correct syntax for C is to include a void keyword between paranthesis.
+- C++ discourages the pointer assignments which discard a const qualifier.
+
+#### 2. Constructs valid both in C and C++ but behave differently
+
+- _Character literals_ are of type **int** in C and of type **char** in C++. Hence, sizeof will return different values in C and C++.
+- _Character literals_ in C are always signed expressions while in C++ they are compiler implementation specific.
+- A _static_ variable is used to restrict a function or a global variable to file scope in both cases but C++ deprecates the usage in favour of _anonymous namespaces_.
+- Any const global is treated as file scope in C++ unless specified extern, whereas C has extern as default.
+- Inline functions have extern scope by default in C++ and C has it at file scope.
+-The following code returns different values in C and C++.
+
+    extern int T;
+    int size(void)
+    {
+     struct T { int i; int j; };
+    
+     return sizeof(T);
+     /* C: return sizeof(int)
+     * C++: return sizeof(struct T)
+     */
+    }
+
+This is because C requires a structure tag to be used before a struct variable. This behaviour is omitted in C++.
+
+- C99 and C++ both have a boolean type with constants true and false but they behave differently. bool is a keyword in C++ however _Bool is a keyword in C99.
+
+#### 3. Linking C and C++ code
+
+- C compilers do not name mangle symbols in the way that C++ compilers do.
+- Depending on the compiler and architecture, it also may be the case that calling conventions differ between the two languages
